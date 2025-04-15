@@ -14,6 +14,10 @@ class RoutePlanner {
     float GetDistance() const {return distance;}
     void AStarSearch();
 
+    std::vector<RouteModel::Node*> GetPath() const;
+
+
+
     // The following methods have been made public so we can test them individually.
     void AddNeighbors(RouteModel::Node *current_node);
     float CalculateHValue(RouteModel::Node const *node);
@@ -28,6 +32,7 @@ class RoutePlanner {
 
     float distance = 0.0f;
     RouteModel &m_Model;
+    std::vector<RouteModel::Node*> path_found; // Add this to store the path
 };
 
 #endif

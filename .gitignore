@@ -1,10 +1,87 @@
+# Build directories
+/build/
+/cmake-build-*/
+
+# IDE specific files
+.idea/
+.vscode/
 *.swp
+*.swo
+.vs/
+*.user
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+# Excluding OSM data files (they can be large)
+# But keeping the main map.osm file that's needed for testing
 *.osm
 !map.osm
-*.o
-draw.cpp
-test.cpp
-build/
-bin/
-lib/
-.github/**
+
+# Debug files
+core
+*.dSYM/
+
+# Log files
+*.log
+
+# Keep necessary project files
+# Don't ignore source files
+!src/*.cpp
+!src/*.h
+!include/*.h
+!CMakeLists.txt
+
+# Ensure test files are included
+!test/*.cpp
+!test/*.h

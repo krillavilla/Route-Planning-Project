@@ -2,8 +2,12 @@
 
 #include <unordered_map>
 #include <io2d.h>
+#include <P0267_RefImpl/xio2d.h>
+#include <io2d/io2d.h>
 #include "route_model.h"
 
+using namespace
+    std::experimental::io2d;
 using namespace std::experimental;
 
 class Render
@@ -11,7 +15,8 @@ class Render
 public:
     Render(RouteModel &model );
     void Display( io2d::output_surface &surface );
-    
+    void Display(const std::vector<RouteModel::Node*> &path);
+
 private:
     void BuildRoadReps();
     void BuildLanduseBrushes();

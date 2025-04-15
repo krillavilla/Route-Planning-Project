@@ -1,50 +1,66 @@
-cmake_minimum_required(VERSION 3.11.3)
-
-# Set the C++ standard we will use
-set(CMAKE_CXX_STANDARD 17)
-
-# Add the path of the cmake files to the CMAKE_MODULE_PATH
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
-
+cmake_minimum_required(VERSION 3.16...3.26)  # Update to a more recent minimum version
 project(OSM_A_star_search)
 
-# Set library output path to /lib
-set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/lib")
+# Set C++ standard
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 
-# Locate project prerequisites
+# Add cmake modules path for custom FindCairo.cmake
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
+# Find GraphicsMagick before adding io2d
+find_package(GraphicsMagick REQUIRED)
+
+# Disable building samples in io2d to avoid SVG sample build errors
+set(IO2D_WITHOUT_SAMPLES ON CACHE BOOL "Don't build io2d samples" FORCE)
+
+# Add thirdparty io2d library
+add_subdirectory(thirdparty/P0267_RefImpl)
+
+# Find required packages
+find_package(Cairo REQUIRED)
 find_package(io2d REQUIRED)
-find_package(Cairo)
-find_package(GraphicsMagick)
 
-# Set IO2D flags
-set(IO2D_WITHOUT_SAMPLES 1)
-set(IO2D_WITHOUT_TESTS 1)
+# Find GTest package
+find_package(GTest REQUIRED)
 
-# Add the pugixml and GoogleTest library subdirectories
-add_subdirectory(thirdparty/pugixml)
-add_subdirectory(thirdparty/googletest)
+# Include directories
+include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CAIRO_INCLUDE_DIRS})
+include_directories(${GraphicsMagick_INCLUDE_DIRS})
+# Add the specific include path for io2d header files
+include_directories(${CMAKE_SOURCE_DIR}/thirdparty/P0267_RefImpl)
+include_directories(${CMAKE_SOURCE_DIR}/thirdparty/P0267_RefImpl/P0267_RefImpl)
 
-# Add project executable
-add_executable(OSM_A_star_search src/main.cpp src/model.cpp src/render.cpp src/route_model.cpp src/route_planner.cpp)
+# Gather source files (excluding test files)
+file(GLOB project_SRCS src/*.cpp model/*.cpp)
+list(REMOVE_ITEM project_SRCS src/test.cpp)
 
+# Create main executable
+add_executable(OSM_A_star_search ${project_SRCS})
 target_link_libraries(OSM_A_star_search
-    PRIVATE io2d::io2d
-    PUBLIC pugixml
+        ${CAIRO_LIBRARIES}
+        ${GraphicsMagick_LIBRARIES}
+        io2d::io2d
+        pugixml
 )
 
-# Add the testing executable
-add_executable(test test/utest_rp_a_star_search.cpp src/route_planner.cpp src/model.cpp src/route_model.cpp)
+# Create test executable
+file(GLOB test_SRCS test/*.cpp)
+file(GLOB model_SRCS model/*.cpp)
 
-target_link_libraries(test 
-    gtest_main 
-    pugixml
+add_executable(test
+        ${test_SRCS}
+        ${model_SRCS}
+        src/model.cpp
+        src/route_model.cpp
+        src/route_planner.cpp
 )
 
-# Set options for Linux or Microsoft Visual C++
-if( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
-    target_link_libraries(OSM_A_star_search PUBLIC pthread)
-endif()
-
-if(MSVC)
-	target_compile_options(OSM_A_star_search PUBLIC /D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING /wd4459)
-endif()
+target_link_libraries(test
+        ${CAIRO_LIBRARIES}
+        ${GraphicsMagick_LIBRARIES}
+        io2d::io2d
+        pugixml
+        GTest::GTest
+        GTest::Main
+)
